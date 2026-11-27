@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#10101a">
+  <meta name="description" content="A simple TikTok video link analyzer with available download formats and caption tracks.">
+  <title>{% block title %}TikDown — TikTok Video Tools{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header class="nav">
+  <a class="logo" href="{{ url_for('index') }}"><span class="logo-mark">T</span> TikDown</a>
+  <span class="nav-note">VIDEO TOOLKIT</span>
+</header>
+<main class="wrap">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert {{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+  {% block content %}{% endblock %}
+</main>
+<footer>
+  <p>TikDown is an independent tool and is not affiliated with TikTok.</p>
+  <p>Only download content you own or are authorized to save. Respect creators' rights and platform terms.</p>
+</footer>
+</body>
+</html>

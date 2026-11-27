@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="error-page">
+  <div class="error-icon">!</div>
+  <h1>Something went wrong</h1>
+  <p>{{ message }}</p>
+  <a class="main-btn" href="{{ url_for('index') }}">Back to TikDown</a>
+</section>
+{% endblock %}
