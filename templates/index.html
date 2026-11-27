@@ -1,1 +1,103 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+  <div class="pill"><span class="dot"></span> SIMPLE VIDEO TOOLKIT</div>
+  <h1>Save videos.<br><span>Keep the moments.</span></h1>
+  <p class="sub">Paste a public TikTok video link to check its available video formats, post text and subtitle tracks.</p>
+  <form class="url-form" action="{{ url_for('analyze') }}" method="post">
+    <div class="url-input">
+      <span class="link-icon">↗</span>
+      <input type="url" name="url" placeholder="Paste TikTok video link here..." required>
+    </div>
+    <button type="submit">Find video <span>→</span></button>
+  </form>
+  <p class="small-note">Public links only · No account password required</p>
+</section>
 
+{% if result %}
+<section class="results">
+  <div class="section-heading">
+    <div><span class="eyebrow">VIDEO FOUND</span><h2>Your video</h2></div>
+    <span class="status">● Analyzed</span>
+  </div>
+  <div class="video-summary">
+    {% if result.thumbnail %}
+      <img class="thumb" src="{{ result.thumbnail }}" alt="Video thumbnail">
+    {% else %}
+      <div class="thumb placeholder">▶</div>
+    {% endif %}
+    <div class="video-info">
+      <h3>{{ result.title }}</h3>
+      <p>Creator: {{ result.uploader }}</p>
+      {% if result.duration %}<p>Duration: {{ result.duration }} seconds</p>{% endif %}
+      <a href="{{ result.webpage_url }}" target="_blank" rel="noopener">Open original TikTok ↗</a>
+    </div>
+  </div>
+
+  <div class="result-grid">
+    <section class="result-card">
+      <div class="card-title"><span class="icon">↓</span><div><h3>Video quality</h3><p>Choose an available format</p></div></div>
+      {% if result.formats %}
+        <div class="option-list">
+          {% for f in result.formats %}
+          <div class="option">
+            <div><strong>{{ f.label }}</strong><small>{{ f.ext|upper }} · {{ f.size }}</small></div>
+            <a class="download-btn" href="{{ url_for('download_video', token=result.token, format_id=f.id) }}">Download</a>
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="empty">No single-file video formats with audio were found. Try again later or use another link.</p>
+      {% endif %}
+    </section>
+
+    <section class="result-card">
+      <div class="card-title"><span class="icon">CC</span><div><h3>Captions & text</h3><p>Post description and subtitle tracks</p></div></div>
+      <h4>Post description</h4>
+      <div class="description">
+        {% if result.description %}{{ result.description }}{% else %}<span class="muted">No post description was returned.</span>{% endif %}
+      </div>
+      <button class="copy-btn" type="button" onclick="copyDescription()">Copy description</button>
+      <textarea id="description-source" hidden>{{ result.description }}</textarea>
+
+      <h4 class="subheading">Subtitle tracks</h4>
+      {% if result.captions %}
+        <div class="option-list">
+          {% for c in result.captions %}
+          <div class="option">
+            <div><strong>{{ c.lang }}</strong><small>{{ c.kind }}</small></div>
+            <a class="download-btn secondary" href="{{ url_for('download_captions', token=result.token, lang=c.lang, kind='manual' if c.kind == 'Subtitles' else 'auto') }}">Get SRT</a>
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="empty">No downloadable subtitle tracks were found for this video.</p>
+      {% endif %}
+      <p class="tiny">Subtitles are separate SRT files. Text already burned into the video image cannot be extracted as a subtitle track by this tool.</p>
+    </section>
+  </div>
+</section>
+{% endif %}
+
+<section class="how">
+  <h2>How it works</h2>
+  <div class="steps">
+    <div><b>01</b><strong>Paste a link</strong><p>Use a public TikTok video URL.</p></div>
+    <div><b>02</b><strong>Choose a format</strong><p>See the qualities and captions actually available.</p></div>
+    <div><b>03</b><strong>Save your file</strong><p>Download the video or subtitle file.</p></div>
+  </div>
+</section>
+<script>
+function copyDescription() {
+  const text = document.getElementById("description-source").value;
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(() => alert("Description copied."));
+  } else {
+    const field = document.getElementById("description-source");
+    field.hidden = false; field.select(); document.execCommand("copy"); field.hidden = true;
+    alert("Description copied.");
+  }
+}
+</script>
+{% endblock %}
+  
